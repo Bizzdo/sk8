@@ -1,0 +1,12 @@
+*
+!LICENSE
+!README.md
+!**/
+!*.md
+!*.go
+!*.txt
+!*.http
+!*.yaml
+!Makefile
+!.gitignore
+!vendor

@@ -1,0 +1,4 @@
+name: simpleservice
+version: "1.0"
+parents:
+- extras/bigger.yaml

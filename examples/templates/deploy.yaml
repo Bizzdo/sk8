@@ -1,0 +1,86 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+  namespace: {{.Namespace}}
+  labels:
+    app: {{.Name}}
+    ver: "{{.Version}}"
+    img: {{.Image}}
+{{- if .Notes}}
+  annotations:
+{{- range $key,$value := .Notes}}
+    {{$key}}: "{{$value}}"
+{{- end}}
+{{- end}}
+spec:
+{{- if .Extra.Replicas}}
+  replicas: {{.Extra.Replicas}}
+{{- end}}
+{{- if .Extra.History}}
+  revisionHistoryLimit: {{.Extra.History}}
+{{- end}}
+  selector:
+    matchLabels:
+      app: {{.Name}}
+  template:
+    metadata:
+      labels:
+        app: {{.Image}}
+        ver: "{{.Version}}"
+        run: {{.Image}}
+{{- if .Tags}}
+      annotations:
+{{- range $key,$value := .Tags}}
+        {{$key}}: "{{$value}}"
+{{- end}}
+{{- end}}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: {{.Image}}-container
+        image: DNS.TO.MY.REGISTRY/{{.Image}}:{{.Version}}
+{{- if .Env}}
+        env:
+{{- range $key,$value := .Env.Values}}
+        - name: {{$key}}
+          value: "{{$value}}"
+{{- end}}
+{{- range $key,$value := .Env.Config}}
+        - name: {{$key}}
+          valueFrom:
+            configMapKeyRef:
+              name: {{$value.Name}}
+              key: {{$value.Key}}
+{{- end}}
+{{- range $key,$value := .Env.Secret}}
+        - name: {{$key}}
+          valueFrom:
+            secretKeyRef:
+              name: {{$value.Name}}
+              key: {{$value.Key}}
+{{- end}}
+{{- range $key,$value := .Env.Fields}}
+        - name: {{$key}}
+          valueFrom:
+            fieldRef:
+              fieldPath: {{$value}}
+{{- end}}
+{{- end}}
+{{- if .Extra.Liveness}}
+        livenessProbe:
+          httpGet:
+            path: {{.Extra.Liveness.Path}}
+            port: {{.Extra.Liveness.Port}}
+            scheme: HTTP
+{{- if .Extra.Liveness.InitialDelaySeconds}}
+          initialDelaySeconds: {{.Extra.Liveness.InitialDelaySeconds}}
+{{- end}}
+{{- if .Extra.Liveness.TimeoutSeconds}}
+          timeoutSeconds: {{.Extra.Liveness.TimeoutSeconds}}
+{{- end}}
+{{- end}}
+        ports:
+        - containerPort: {{.Port}}
+      imagePullSecrets:
+      - name: registrykey

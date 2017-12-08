@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  app: {{.Name}}
+  namespace: {{.Namespace}}
+  annotations:
+    kubernetes.io/tls-acme: "false"
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: {{.Site}}
+    http:
+      paths:
+      - path: /api/{{.Name}}
+        backend:
+          serviceName: {{.Name}}
+          servicePort: 80

@@ -1,0 +1,3 @@
+extra:
+  replicas: 1
+  history: 2
