@@ -1,8 +1,9 @@
 # sk8 [skate] - A quick way to deploy many microservices in a similar way
 
-sk8 is a yaml-preprocessor for [kubectl][kctl]
+sk8 is a yaml-preprocessor for [kubectl][kctl] 
 
 sk8 uses simplified yaml-files describing a service and using templates to generate different [kubernetes][k8] resources.
+It supports inheritance for sharing common settings cross multiple files, both default and specific 'parents'
 
 ## Usage
 ```
