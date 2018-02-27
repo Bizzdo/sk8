@@ -31,8 +31,8 @@ type envconfig struct {
 }
 
 type extra struct {
-	Replicas  int    `json:"replicas,omitempty"`
-	History   int    `json:"history,omitempty"`
+	Replicas  *int   `json:"replicas,omitempty"`
+	History   *int   `json:"history,omitempty"`
 	Liveness  *probe `json:"liveness,omitempty"`
 	Readyness *probe `json:"readyness,omitempty"`
 }
