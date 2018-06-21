@@ -9,4 +9,5 @@
 !*.yaml
 !Makefile
 !.gitignore
+!.gitattributes
 !vendor
