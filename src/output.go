@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
+	"text/template"
 )
 
 // SendOuput -
