@@ -45,14 +45,15 @@ type probe struct {
 }
 
 type volumeType struct {
-	Name     string            `json:"name,omitempty"`
-	Path     string            `json:"path,omitempty"`
-	ReadOnly bool              `json:"readonly,omitempty"`
-	EmptyDir bool              `json:"empty,omitempty"`
-	Config   *volumeFromConfig `json:"config,omitempty"`
+	Name     string        `json:"name,omitempty"`
+	Path     string        `json:"path,omitempty"`
+	ReadOnly bool          `json:"readonly,omitempty"`
+	EmptyDir bool          `json:"empty,omitempty"`
+	Config   *volumeSource `json:"config,omitempty"`
+	Secret   *volumeSource `json:"secret,omitempty"`
 }
 
-type volumeFromConfig struct {
+type volumeSource struct {
 	Name  string            `json:"name,omitempty"`
 	Items map[string]string `json:"items,omitempty"`
 }
