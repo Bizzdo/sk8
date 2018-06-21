@@ -12,8 +12,8 @@ import (
 	"text/template"
 )
 
-// SendOuput -
-func SendOutput(cfgs []*sk8config) {
+// SendOutput starts 'kubectl' and pipes the templated result into an 'apply'
+func SendOutput(cfgs []*SK8config) {
 	div := ""
 
 	var cmd *exec.Cmd
@@ -77,7 +77,7 @@ func SendOutput(cfgs []*sk8config) {
 	}
 }
 
-func (cfg *sk8config) makeYaml(path string, div *string, output *io.WriteCloser) {
+func (cfg *SK8config) makeYaml(path string, div *string, output *io.WriteCloser) {
 	if path != "" {
 		w := *output
 		log.Infof("Create YAML from the %q template for %s/%s", path, cfg.Namespace, cfg.Name)

@@ -6,8 +6,8 @@ import (
 )
 
 // LoadInput -
-func LoadInput() []*sk8config {
-	var cfgs []*sk8config
+func LoadInput() []*SK8config {
+	var cfgs []*SK8config
 
 	for _, item := range args.Files {
 		o, err := loadFile(item, 0, nil)
@@ -16,7 +16,7 @@ func LoadInput() []*sk8config {
 			return nil
 		}
 
-		base := &sk8config{}
+		base := &SK8config{}
 		dirname := ".sk8"
 		files, err := ioutil.ReadDir(dirname)
 		if err == nil {

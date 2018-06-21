@@ -10,7 +10,7 @@ import (
 	"yaml_mapstr"
 )
 
-func loadFile(fn string, depth int, cfg *sk8config) (*sk8config, error) {
+func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
 	prefix := strings.Repeat("| ", depth)
 	log.Debugf("%sLoading from %s", prefix, fn)
 	prefix = prefix + "+-"
@@ -35,7 +35,7 @@ func loadFile(fn string, depth int, cfg *sk8config) (*sk8config, error) {
 		buf = bufStream.Bytes()
 	}
 
-	var o sk8config
+	var o SK8config
 	var raw interface{}
 
 	err = yaml_mapstr.Unmarshal(buf, &raw)
@@ -50,7 +50,7 @@ func loadFile(fn string, depth int, cfg *sk8config) (*sk8config, error) {
 	}
 
 	if depth < 5 && len(o.Parents) > 0 {
-		parent := &sk8config{}
+		parent := &SK8config{}
 		parents := o.Parents
 		o.Parents = nil
 		log.Debugf("About to load parents: %v", parents)
@@ -70,7 +70,7 @@ func loadFile(fn string, depth int, cfg *sk8config) (*sk8config, error) {
 	return &o, nil
 }
 
-func (cfg *sk8config) mergeWith(copyfrom *sk8config) *sk8config {
+func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 	v, _ := json.Marshal(copyfrom)
 	err := json.Unmarshal(v, cfg)
 	if err != nil {
@@ -79,15 +79,10 @@ func (cfg *sk8config) mergeWith(copyfrom *sk8config) *sk8config {
 	return cfg
 }
 
-func (cfg *sk8config) fixFile() error {
+func (cfg *SK8config) fixFile() error {
 
 	if cfg.Image == "" {
 		cfg.Image = cfg.Name
-	}
-
-	if cfg.Port == 0 {
-		//defaultPort := 80
-		//		o.Port = defaultPort
 	}
 
 	return nil
