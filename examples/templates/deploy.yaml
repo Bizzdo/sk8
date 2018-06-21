@@ -82,5 +82,13 @@ spec:
 {{- end}}
         ports:
         - containerPort: {{.Port}}
+{{- if .HasFeature "FeatureA"}}
+      - name: feature-a-container
+{{- if .Registry}}
+        image: {{.Registry.Host}}{{if .Registry.Path}}/{{.Registry.Path}}{{end}}/feature-a:latest
+{{- else}}
+        image: DNS.TO.MY.REGISTRY/feature-a:latest
+{{- end}}
+{{- end}}
       imagePullSecrets:
       - name: registrykey

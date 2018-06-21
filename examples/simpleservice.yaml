@@ -1,2 +1,7 @@
 name: simpleservice
 version: "1.0"
+registry:
+  host: quay.io
+  path: path
+features:
+- FeatureA

@@ -6,6 +6,7 @@ type sk8config struct {
 	Site      string            `json:"site,omitempty"`
 	Image     string            `json:"image,omitempty"`
 	Version   string            `json:"version,omitempty"`
+	Registry  registry          `json:"registry,omitempty"`
 	Port      int               `json:"port,omitempty"`
 	Parents   []string          `json:"parents,omitempty"`
 	Custom    interface{}       `json:"custom,omitempty"`
@@ -15,7 +16,25 @@ type sk8config struct {
 	Env       envmap            `json:"env,omitempty"`
 	Volume    []volumeType      `json:"volume,omitempty"`
 	Templates map[string]string `json:"templates,omitempty"`
+	Features  []string          `json:"features"`
 	//	URL       string            `json:"url,omitempty"`
+}
+
+func (sk8 *sk8config) HasFeature(feat string) bool {
+	if sk8.Features == nil {
+		return false
+	}
+	for _, f := range sk8.Features {
+		if feat == f {
+			return true
+		}
+	}
+	return false
+}
+
+type registry struct {
+	Host string `json:"host,omitempty"`
+	Path string `json:"path,omitempty"`
 }
 
 type envmap struct {
