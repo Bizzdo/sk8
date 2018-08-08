@@ -72,6 +72,7 @@ type Probe struct {
 	Port                *int   `json:"port,omitempty"`
 	InitialDelaySeconds *int   `json:"initialDelaySeconds,omitempty"`
 	TimeoutSeconds      *int   `json:"timeoutSeconds,omitempty"`
+	PeriodSeconds       *int   `json:"periodSeconds,omitempty"`
 }
 
 // VolumeType is how to get a "file" in the pod from various sources
