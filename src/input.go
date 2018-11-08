@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
 )
 
@@ -9,7 +10,14 @@ import (
 func LoadInput() []*SK8config {
 	var cfgs []*SK8config
 
-	for _, item := range args.Files {
+	currdir, _ := os.Getwd()
+
+	for _, f := range args.Files {
+		dir := path.Dir(f)
+		item := path.Base(f)
+		log.Debugf("File %s: folder %s, name %s", f, dir, item)
+		os.Chdir(dir)
+
 		o, err := loadFile(item, 0, nil)
 		if err != nil {
 			log.Fatal(err.Error())
@@ -40,5 +48,8 @@ func LoadInput() []*SK8config {
 
 		cfgs = append(cfgs, o)
 	}
+
+	os.Chdir(currdir)
+
 	return cfgs
 }

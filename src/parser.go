@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"os"
+	"path"
 	"strings"
 	"yaml_mapstr"
 )
@@ -83,6 +85,14 @@ func (cfg *SK8config) fixFile() error {
 
 	if cfg.Image == "" {
 		cfg.Image = cfg.Name
+	}
+
+	cwd, _ := os.Getwd()
+	for t, f := range cfg.Templates {
+		if !path.IsAbs(f) {
+			f2 := path.Join(cwd, f)
+			cfg.Templates[t] = f2
+		}
 	}
 
 	return nil
