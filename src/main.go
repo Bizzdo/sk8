@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"os"
 
 	"strings"
 )
@@ -33,7 +34,9 @@ func main() {
 	}
 
 	if (args.AllTemplates || len(args.Templates) > 0) && !args.Debug {
-		SendOutput(cfgs)
+		if !SendOutput(cfgs) {
+			os.Exit(1)
+		}
 	} else {
 		for _, o := range cfgs {
 			dump(o)

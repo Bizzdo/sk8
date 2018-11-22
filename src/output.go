@@ -13,7 +13,7 @@ import (
 )
 
 // SendOutput starts 'kubectl' and pipes the templated result into an 'apply'
-func SendOutput(cfgs []*SK8config) {
+func SendOutput(cfgs []*SK8config) bool {
 	div := ""
 
 	var cmd *exec.Cmd
@@ -73,8 +73,13 @@ func SendOutput(cfgs []*SK8config) {
 		}
 		<-stopIn
 		<-stopErr
-		cmd.Wait()
+		err = cmd.Wait()
+		if err != nil {
+			log.Errorf("kubectl failed: %s", err.Error())
+			return false
+		}
 	}
+	return true
 }
 
 func (cfg *SK8config) makeYaml(path string, div *string, output *io.WriteCloser) {

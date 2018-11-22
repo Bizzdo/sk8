@@ -47,9 +47,8 @@ func LoadInput() []*SK8config {
 		}
 
 		cfgs = append(cfgs, o)
+		os.Chdir(currdir)
 	}
-
-	os.Chdir(currdir)
 
 	return cfgs
 }
