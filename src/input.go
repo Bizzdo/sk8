@@ -4,7 +4,57 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 )
+
+func findDefaults(folder string) (string, bool) {
+	// log.Debugf("? findDefaults( %s ) ", folder)
+
+	if len(folder) <= 1 {
+		return "", false
+	}
+
+	foo := 0
+	for folder != "/" {
+		foo++
+		if foo > 30 {
+			// log.Fatal("to deep folders, or possible loop")
+			return "", false
+		}
+
+		folder = path.Dir(folder)
+		// log.Debugf("? checking for .sk8default in %q", folder)
+		folder2 := path.Join(folder, ".sk8default")
+		fi, err := os.Stat(folder2)
+		if err != nil {
+			// log.Debugf("? -> %s", err.Error())
+		} else {
+			// log.Debugf("? => %+v", fi)
+			if fi != nil && fi.IsDir() {
+				// log.Debugf("Found .sk8default in %q as %q", folder, fi.Name())
+				return folder2, true
+			}
+		}
+	}
+	return "", false
+}
+
+func mergeSettingsFrom(dirname string, base, o *SK8config) {
+	files, err := ioutil.ReadDir(dirname)
+	if err == nil {
+		for _, def := range files {
+			if strings.HasSuffix(def.Name(), ".yaml") {
+				defName := path.Join(dirname, def.Name())
+				log.Debugf("Import defaults: %s", defName)
+				override, err := loadFile(defName, 0, o)
+				if err != nil {
+					panic(err)
+				}
+				base.mergeWith(override)
+			}
+		}
+	}
+}
 
 // LoadInput -
 func LoadInput() []*SK8config {
@@ -24,22 +74,44 @@ func LoadInput() []*SK8config {
 			return nil
 		}
 
-		base := &SK8config{}
-		dirname := ".sk8"
-		files, err := ioutil.ReadDir(dirname)
+		fullpath, err := os.Getwd()
 		if err == nil {
-			for _, def := range files {
-				defName := path.Join(dirname, def.Name())
-				log.Debugf("Import defaults: %s", defName)
-				override, err := loadFile(defName, 0, o)
-				if err != nil {
-					panic(err)
-				}
-				base.mergeWith(override)
-			}
+			fullpath = path.Join(fullpath, item)
 		}
 
+		base := &SK8config{}
+
+		if defaults, found := findDefaults(fullpath); found {
+			mergeSettingsFrom(defaults, base, o)
+		}
+
+		mergeSettingsFrom(".sk8", base, o)
+
+		// dirname := ".sk8"
+		// files, err := ioutil.ReadDir(dirname)
+		// if err == nil {
+		// 	for _, def := range files {
+		// 		defName := path.Join(dirname, def.Name())
+		// 		log.Debugf("Import defaults: %s", defName)
+		// 		override, err := loadFile(defName, 0, o)
+		// 		if err != nil {
+		// 			panic(err)
+		// 		}
+		// 		base.mergeWith(override)
+		// 	}
+		// }
+
 		o = base.mergeWith(o)
+
+		overrideFile := strings.Replace(item, ".yaml", ".override", -1)
+		if _, err := os.Stat(overrideFile); err == nil {
+			log.Debugf("Applying override: %s", overrideFile)
+			override, err := loadFile(overrideFile, 0, o)
+			if err != nil {
+				panic(err)
+			}
+			o.mergeWith(override)
+		}
 
 		err = o.fixFile()
 		if err != nil {

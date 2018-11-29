@@ -13,6 +13,15 @@ import (
 )
 
 func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
+
+	if strings.HasPrefix(fn, "?") {
+		fn = fn[1:]
+		if _, err := os.Stat(fn); err != nil {
+			log.Debugf("Skipping optional parent: %s", fn)
+			return nil, nil
+		}
+	}
+
 	prefix := strings.Repeat("| ", depth)
 	log.Debugf("%sLoading from %s", prefix, fn)
 	prefix = prefix + "+-"
