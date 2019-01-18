@@ -72,6 +72,10 @@ func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
 			if err != nil {
 				return nil, err
 			}
+			if args.Debug && args.Verbose {
+				log.Debugf("Dump of intermediate parent: %s", pn)
+				dump(gp)
+			}
 			parent.mergeWith(gp)
 		}
 		parent.mergeWith(&o)
@@ -82,11 +86,25 @@ func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
 }
 
 func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
+
+	features := make(map[string]bool)
+	for _, f := range cfg.Features {
+		features[f] = true
+	}
+	for _, f := range copyfrom.Features {
+		features[f] = true
+	}
+
 	v, _ := json.Marshal(copyfrom)
 	err := json.Unmarshal(v, cfg)
 	if err != nil {
 		panic(err)
 	}
+	var list []string
+	for f := range features {
+		list = append(list, f)
+	}
+	cfg.Features = list
 	return cfg
 }
 

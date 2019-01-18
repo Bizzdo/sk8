@@ -21,7 +21,7 @@ type SK8config struct {
 	Env       EnvMap            `json:"env,omitempty"`
 	Volume    []VolumeType      `json:"volume,omitempty"`
 	Templates map[string]string `json:"templates,omitempty"`
-	Features  []string          `json:"features"`
+	Features  []string          `json:"features,omitempty"`
 	//	URL       string            `json:"url,omitempty"`
 }
 
