@@ -87,6 +87,10 @@ func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
 
 func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 
+	if copyfrom == nil {
+		return cfg
+	}
+
 	features := make(map[string]bool)
 	for _, f := range cfg.Features {
 		features[f] = true
