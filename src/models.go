@@ -6,22 +6,23 @@ import (
 
 // SK8config s the root of the YAML config for a service
 type SK8config struct {
-	Name      string            `json:"name,omitempty"`
-	Namespace string            `json:"namespace,omitempty"`
-	Site      string            `json:"site,omitempty"`
-	Image     string            `json:"image,omitempty"`
-	Version   string            `json:"version,omitempty"`
-	Registry  Registry          `json:"registry,omitempty"`
-	Port      int               `json:"port,omitempty"`
-	Parents   []string          `json:"parents,omitempty"`
-	Custom    interface{}       `json:"custom,omitempty"`
-	Notes     map[string]string `json:"notes,omitempty"`
-	Tags      map[string]string `json:"tags,omitempty"`
-	Extra     Extra             `json:"extra,omitempty"`
-	Env       EnvMap            `json:"env,omitempty"`
-	Volume    []VolumeType      `json:"volume,omitempty"`
-	Templates map[string]string `json:"templates,omitempty"`
-	Features  []string          `json:"features,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Namespace    string            `json:"namespace,omitempty"`
+	Site         string            `json:"site,omitempty"`
+	Image        string            `json:"image,omitempty"`
+	Version      string            `json:"version,omitempty"`
+	ImageVersion *string           `json:"imageversion,omitempty"`
+	Registry     Registry          `json:"registry,omitempty"`
+	Port         int               `json:"port,omitempty"`
+	Parents      []string          `json:"parents,omitempty"`
+	Custom       interface{}       `json:"custom,omitempty"`
+	Notes        map[string]string `json:"notes,omitempty"`
+	Tags         map[string]string `json:"tags,omitempty"`
+	Extra        Extra             `json:"extra,omitempty"`
+	Env          EnvMap            `json:"env,omitempty"`
+	Volume       []VolumeType      `json:"volume,omitempty"`
+	Templates    map[string]string `json:"templates,omitempty"`
+	Features     []string          `json:"features,omitempty"`
 	//	URL       string            `json:"url,omitempty"`
 }
 
