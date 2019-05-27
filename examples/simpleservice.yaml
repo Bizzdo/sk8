@@ -1,7 +1,11 @@
 name: simpleservice
 version: "1.0"
+imageversion: "1234"
 registry:
   host: quay.io
   path: path
 features:
 - FeatureA
+env:
+  values:
+    TEST_README: {{ getFile "README.md" | toYaml | indent2 6 }}

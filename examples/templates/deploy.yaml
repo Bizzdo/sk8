@@ -39,12 +39,16 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
       - name: {{.Image}}-container
+{{- if .ImageVersion}}
+        image: DNS.TO.MY.REGISTRY/{{.Image}}:{{.ImageVersion}}
+{{- else }}
         image: DNS.TO.MY.REGISTRY/{{.Image}}:{{.Version}}
+{{- end}}
 {{- if .Env}}
         env:
 {{- range $key,$value := .Env.Values}}
         - name: {{$key}}
-          value: "{{$value}}"
+          value: {{ $value | toYaml | indent2 10 }}
 {{- end}}
 {{- range $key,$value := .Env.Config}}
         - name: {{$key}}

@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
+	"text/template"
 	"yaml_mapstr"
 )
 
@@ -31,19 +31,34 @@ func loadFile(fn string, depth int, cfg *SK8config) (*SK8config, error) {
 		return nil, fmt.Errorf("ReadFile-error %q: %q", fn, err.Error())
 	}
 
-	if cfg != nil && bytes.ContainsAny(buf, "{{") {
-		log.Debugf("%sTemplating defaults in %s", prefix, fn)
-		tmpl := template.New(fn)
-		tmpl, err := tmpl.Parse(string(buf))
-		if err != nil {
-			return nil, err
+	if bytes.ContainsAny(buf, "{{") {
+		if cfg != nil {
+			log.Debugf("%sTemplating defaults in %s", prefix, fn)
+			tmpl := template.New(fn).Funcs(FuncMap())
+			tmpl, err := tmpl.Parse(string(buf))
+			if err != nil {
+				return nil, err
+			}
+			var bufStream bytes.Buffer
+			err = tmpl.Execute(&bufStream, cfg)
+			if err != nil {
+				return nil, err
+			}
+			buf = bufStream.Bytes()
+		} else {
+			log.Debugf("%sTemplating generics in %s", prefix, fn)
+			tmpl := template.New(fn).Funcs(FuncMap())
+			tmpl, err := tmpl.Parse(string(buf))
+			if err != nil {
+				return nil, err
+			}
+			var bufStream bytes.Buffer
+			err = tmpl.Execute(&bufStream, nil)
+			if err != nil {
+				return nil, err
+			}
+			buf = bufStream.Bytes()
 		}
-		var bufStream bytes.Buffer
-		err = tmpl.Execute(&bufStream, cfg)
-		if err != nil {
-			return nil, err
-		}
-		buf = bufStream.Bytes()
 	}
 
 	var o SK8config

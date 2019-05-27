@@ -1,0 +1,4 @@
+env:
+  values:
+    TEST_TEST_TEST: "{{.Name}}"
+    TEST_JSON_JSON: {{ getFile "data.json" | toYaml | indent2 10 }}
