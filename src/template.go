@@ -4,7 +4,7 @@ import (
 	"strings"
 	"text/template"
 
-	"OSS/sk8/chartutil"
+	"Bizzdo/sk8/chartutil"
 
 	"github.com/Masterminds/sprig"
 )
