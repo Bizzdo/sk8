@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -46,11 +47,14 @@ func mergeSettingsFrom(dirname string, base, o *SK8config) {
 			if strings.HasSuffix(def.Name(), ".yaml") {
 				defName := path.Join(dirname, def.Name())
 				log.Debugf("Import defaults: %s", defName)
-				override, err := loadFile(defName, 0, o)
+				overrides, err := loadFile(defName, 0, o)
 				if err != nil {
 					panic(err)
 				}
-				base.mergeWith(override)
+				if len(overrides) > 1 {
+					panic(fmt.Errorf("multiple documents in %s (%s)", def.Name(), dirname))
+				}
+				base.mergeWith(overrides[0])
 			}
 		}
 	}
@@ -68,7 +72,7 @@ func LoadInput() []*SK8config {
 		log.Debugf("File %s: folder %s, name %s", f, dir, item)
 		os.Chdir(dir)
 
-		o, err := loadFile(item, 0, nil)
+		docs, err := loadFile(item, 0, nil)
 		if err != nil {
 			log.Fatal(err.Error())
 			return nil
@@ -79,47 +83,53 @@ func LoadInput() []*SK8config {
 			fullpath = path.Join(fullpath, item)
 		}
 
-		base := &SK8config{}
+		for _, o := range docs {
 
-		if defaults, found := findDefaults(fullpath); found {
-			mergeSettingsFrom(defaults, base, o)
-		}
+			base := &SK8config{}
 
-		mergeSettingsFrom(".sk8", base, o)
+			if defaults, found := findDefaults(fullpath); found {
+				mergeSettingsFrom(defaults, base, o)
+			}
 
-		// dirname := ".sk8"
-		// files, err := ioutil.ReadDir(dirname)
-		// if err == nil {
-		// 	for _, def := range files {
-		// 		defName := path.Join(dirname, def.Name())
-		// 		log.Debugf("Import defaults: %s", defName)
-		// 		override, err := loadFile(defName, 0, o)
-		// 		if err != nil {
-		// 			panic(err)
-		// 		}
-		// 		base.mergeWith(override)
-		// 	}
-		// }
+			mergeSettingsFrom(".sk8", base, o)
 
-		o = base.mergeWith(o)
+			// dirname := ".sk8"
+			// files, err := ioutil.ReadDir(dirname)
+			// if err == nil {
+			// 	for _, def := range files {
+			// 		defName := path.Join(dirname, def.Name())
+			// 		log.Debugf("Import defaults: %s", defName)
+			// 		override, err := loadFile(defName, 0, o)
+			// 		if err != nil {
+			// 			panic(err)
+			// 		}
+			// 		base.mergeWith(override)
+			// 	}
+			// }
 
-		overrideFile := strings.Replace(item, ".yaml", ".override", -1)
-		if _, err := os.Stat(overrideFile); err == nil {
-			log.Debugf("Applying override: %s", overrideFile)
-			override, err := loadFile(overrideFile, 0, o)
+			o = base.mergeWith(o)
+
+			overrideFile := strings.Replace(item, ".yaml", ".override", -1)
+			if _, err := os.Stat(overrideFile); err == nil {
+				log.Debugf("Applying override: %s", overrideFile)
+				overrides, err := loadFile(overrideFile, 0, o)
+				if err != nil {
+					panic(err)
+				}
+				if len(overrides) > 1 {
+					panic(fmt.Errorf("multiple documents in override %s", overrideFile))
+				}
+				o.mergeWith(overrides[0])
+			}
+
+			err = o.fixFile()
 			if err != nil {
 				panic(err)
 			}
-			o.mergeWith(override)
-		}
 
-		err = o.fixFile()
-		if err != nil {
-			panic(err)
+			cfgs = append(cfgs, o)
+			os.Chdir(currdir)
 		}
-
-		cfgs = append(cfgs, o)
-		os.Chdir(currdir)
 	}
 
 	return cfgs

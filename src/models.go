@@ -24,6 +24,7 @@ type SK8config struct {
 	Templates    map[string]string `json:"templates,omitempty"`
 	Features     []string          `json:"features,omitempty"`
 	//	URL       string            `json:"url,omitempty"`
+	RawYAML string `json:"rawYaml,omitempty"`
 }
 
 // HasFeature is a helper for the templating to test if a feature is used or not
@@ -80,6 +81,8 @@ type Probe struct {
 type VolumeType struct {
 	Name     string        `json:"name,omitempty"`
 	Path     string        `json:"path,omitempty"`
+	HostDir  string        `json:"hostdir,omitempty"`
+	HostFile string        `json:"hostfile,omitempty"`
 	ReadOnly bool          `json:"readonly,omitempty"`
 	EmptyDir bool          `json:"empty,omitempty"`
 	Config   *VolumeSource `json:"config,omitempty"`

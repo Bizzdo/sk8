@@ -9,3 +9,5 @@ features:
 env:
   values:
     TEST_README: {{ getFile "README.md" | toYaml | indent2 6 }}
+    TEST_WINDOWS: {{ getTextfile "windows.txt" | toYaml | indent2 6 }}
+    TEST_QUERY: {{ getTextfile "query.sql" | toYaml | indent2 6 }}

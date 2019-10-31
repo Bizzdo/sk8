@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"yaml_mapstr"
 )
 
 type kubeconfig struct {
@@ -50,7 +49,12 @@ func validateKubeconfig(validate bool) bool {
 
 	var kc kubeconfig
 	var o interface{}
-	yaml_mapstr.Unmarshal(buf, &o)
+	//yaml_mapstr.Unmarshal(buf, &o)
+	err = yamlUnmarshal(buf, &o)
+	if err != nil {
+		log.Error("Unable to read kubeconfig: %s", err.Error())
+		return false
+	}
 	buf, err = json.Marshal(o)
 	json.Unmarshal(buf, &kc)
 
