@@ -24,7 +24,16 @@ type SK8config struct {
 	Templates    map[string]string `json:"templates,omitempty"`
 	Features     []string          `json:"features,omitempty"`
 	//	URL       string            `json:"url,omitempty"`
-	RawYAML string `json:"rawYaml,omitempty"`
+	RawYAML    string      `json:"rawYaml,omitempty"`
+	Containers []Container `json:"containers,omitempty"`
+}
+
+type Container struct {
+	Name      string `json:"name"`
+	Image     string `json:"image"`
+	Env       EnvMap `json:"env,omitempty"`
+	Liveness  *Probe `json:"liveness,omitempty"`
+	Readyness *Probe `json:"readyness,omitempty"`
 }
 
 // HasFeature is a helper for the templating to test if a feature is used or not
