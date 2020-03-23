@@ -56,7 +56,11 @@ func validateKubeconfig(validate bool) bool {
 		return false
 	}
 	buf, err = json.Marshal(o)
-	json.Unmarshal(buf, &kc)
+	if err != nil {
+		log.Error("Unable to marshal kubeconfig: %s", err.Error())
+		return false
+	}
+	_ = json.Unmarshal(buf, &kc)
 
 	var ctx *kubeContext
 	for _, c := range kc.Contexts {

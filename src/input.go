@@ -70,7 +70,7 @@ func LoadInput() []*SK8config {
 		dir := path.Dir(f)
 		item := path.Base(f)
 		log.Debugf("File %s: folder %s, name %s", f, dir, item)
-		os.Chdir(dir)
+		_ = os.Chdir(dir)
 
 		docs, err := loadFile(item, 0, nil)
 		if err != nil {
@@ -84,51 +84,35 @@ func LoadInput() []*SK8config {
 		}
 
 		for _, o := range docs {
+			log.Debugf("doc(%s) = %v", o.Namespace, o.cfgType)
+			if o.cfgType == typeSK8 {
+				base := &SK8config{}
 
-			base := &SK8config{}
-
-			if defaults, found := findDefaults(fullpath); found {
-				mergeSettingsFrom(defaults, base, o)
-			}
-
-			mergeSettingsFrom(".sk8", base, o)
-
-			// dirname := ".sk8"
-			// files, err := ioutil.ReadDir(dirname)
-			// if err == nil {
-			// 	for _, def := range files {
-			// 		defName := path.Join(dirname, def.Name())
-			// 		log.Debugf("Import defaults: %s", defName)
-			// 		override, err := loadFile(defName, 0, o)
-			// 		if err != nil {
-			// 			panic(err)
-			// 		}
-			// 		base.mergeWith(override)
-			// 	}
-			// }
-
-			o = base.mergeWith(o)
-
-			overrideFile := strings.Replace(item, ".yaml", ".override", -1)
-			if _, err := os.Stat(overrideFile); err == nil {
-				log.Debugf("Applying override: %s", overrideFile)
-				overrides, err := loadFile(overrideFile, 0, o)
-				if err != nil {
-					panic(err)
+				if defaults, found := findDefaults(fullpath); found {
+					mergeSettingsFrom(defaults, base, o)
 				}
-				if len(overrides) > 1 {
-					panic(fmt.Errorf("multiple documents in override %s", overrideFile))
+
+				mergeSettingsFrom(".sk8", base, o)
+
+				o = base.mergeWith(o)
+
+				overrideFile := strings.Replace(item, ".yaml", ".override", -1)
+				if _, err := os.Stat(overrideFile); err == nil {
+					log.Debugf("Applying override: %s", overrideFile)
+					overrides, err := loadFile(overrideFile, 0, o)
+					if err != nil {
+						panic(err)
+					}
+					if len(overrides) > 1 {
+						panic(fmt.Errorf("multiple documents in override %s", overrideFile))
+					}
+					o.mergeWith(overrides[0])
 				}
-				o.mergeWith(overrides[0])
-			}
 
-			err = o.fixFile()
-			if err != nil {
-				panic(err)
+				o.fixFile()
 			}
-
 			cfgs = append(cfgs, o)
-			os.Chdir(currdir)
+			_ = os.Chdir(currdir)
 		}
 	}
 

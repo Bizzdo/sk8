@@ -49,18 +49,24 @@ func SendOutput(cfgs []*SK8config) bool {
 	}
 
 	for _, o := range cfgs {
-		if args.AllTemplates {
-			for _, path := range o.Templates {
-				o.makeYaml(path, &div, &output)
-			}
+		if o.cfgType == typeKubectl {
+			log.Infof("Send raw k8-configs: %s", o.Kind)
+			output.Write([]byte("---\n"))
+			_, _ = output.Write(o.RawYAML)
 		} else {
-			for _, tmplArg := range args.Templates {
-				for tmplID, path := range o.Templates {
-					if strings.HasPrefix(tmplID, tmplArg) {
-						o.makeYaml(path, &div, &output)
-					}
+			if args.AllTemplates {
+				for _, path := range o.Templates {
+					o.makeYaml(path, &div, &output)
 				}
-				// path := o.Templates[tmplkey]
+			} else {
+				for _, tmplArg := range args.Templates {
+					for tmplID, path := range o.Templates {
+						if strings.HasPrefix(tmplID, tmplArg) {
+							o.makeYaml(path, &div, &output)
+						}
+					}
+					// path := o.Templates[tmplkey]
+				}
 			}
 		}
 	}
@@ -83,11 +89,25 @@ func SendOutput(cfgs []*SK8config) bool {
 }
 
 func (cfg *SK8config) makeYaml(path string, div *string, output *io.WriteCloser) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		cwd, _ := os.Getwd()
+		log.Debugf("cwd = %s", cwd)
+		log.Warningf("Warning: template %s error: %v", path, err)
+		return
+	}
+	if fi.IsDir() {
+		log.Debugf("Ignore template %s -> directory", path)
+		return
+	}
 	if path != "" {
 		w := *output
 		log.Infof("Create YAML from the %q template for %s/%s", path, cfg.Namespace, cfg.Name)
 		tmpl := template.New("tmpl").Funcs(FuncMap())
 		buf, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
 		tmpl, err = tmpl.Parse(string(buf))
 		//tmpl, err := tmpl.ParseFiles(os.Args[2])
 		if err != nil {

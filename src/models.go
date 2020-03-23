@@ -4,6 +4,13 @@ import (
 	"strings"
 )
 
+type configType int
+
+const (
+	typeSK8     configType = 1
+	typeKubectl configType = 2
+)
+
 // SK8config s the root of the YAML config for a service
 type SK8config struct {
 	Name         string            `json:"name,omitempty"`
@@ -23,9 +30,17 @@ type SK8config struct {
 	Volume       []VolumeType      `json:"volume,omitempty"`
 	Templates    map[string]string `json:"templates,omitempty"`
 	Features     []string          `json:"features,omitempty"`
-	//	URL       string            `json:"url,omitempty"`
-	RawYAML    string      `json:"rawYaml,omitempty"`
-	Containers []Container `json:"containers,omitempty"`
+	Override     *SK8config        `json:"override,omitempty"`
+	cfgType      configType
+	Kind         string       `json:"kind,omitempty"`
+	RawMetadata  *rawMetadata `json:"metadata,omitempty"`
+	RawYAML      []byte       `json:"rawYaml,omitempty"`
+	Containers   []Container  `json:"containers,omitempty"`
+}
+
+type rawMetadata struct {
+	Name      string `json:"name,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 type Container struct {

@@ -70,6 +70,14 @@ func splitDocuments(input []byte) [][]byte {
 	return bufs
 }
 
+func isKubectl(buf []byte) bool {
+	if len(buf) < 10 {
+		return false
+	}
+	first := string(buf[0:9])
+	return first == "#!kubectl"
+}
+
 func loadFile(fn string, depth int, cfg *SK8config) ([]*SK8config, error) {
 
 	var result []*SK8config
@@ -97,52 +105,80 @@ func loadFile(fn string, depth int, cfg *SK8config) ([]*SK8config, error) {
 	}
 
 	bufs := splitDocuments(filedata)
-	log.Infof("%s splitted into %d documents", prefix, len(bufs))
+	if len(bufs) > 1 {
+		log.Infof("%s %s splitted into %d documents", prefix, fn, len(bufs))
+	}
 
 	for _, buf := range bufs {
-
 		var o = SK8config{}
-		var raw interface{}
 
-		//err = yaml_mapstr.Unmarshal(buf, &raw)
-		err = yamlUnmarshal(buf, &raw)
-		if err != nil {
-			fmt.Println(string(buf))
-			return nil, fmt.Errorf("yaml parse error %q: %q", fn, err.Error())
-		}
+		if isKubectl(buf) {
+			o.cfgType = typeKubectl
+			o.RawYAML = buf
+		} else {
+			o.cfgType = typeSK8
+			var raw interface{}
 
-		buf, err = json.Marshal(raw)
-		json.Unmarshal(buf, &o)
-		if err != nil {
-			return nil, err
-		}
-
-		if depth < 5 && len(o.Parents) > 0 {
-			parent := &SK8config{}
-			parents := o.Parents
-			o.Parents = nil
-			log.Debugf("About to load parents: %v", parents)
-
-			for _, pn := range parents {
-				log.Debugf("%sInherit from %s", prefix, pn)
-				gps, err := loadFile(pn, depth+1, cfg)
-				if err != nil {
-					return nil, err
-				}
-				if len(gps) != 1 {
-					return nil, fmt.Errorf("multiple documents in parent %s", pn)
-				}
-				gp := gps[0]
-				if args.Debug && args.Verbose {
-					log.Debugf("Dump of intermediate parent: %s", pn)
-					dump(gp)
-				}
-				parent.mergeWith(gp)
+			//err = yaml_mapstr.Unmarshal(buf, &raw)
+			err = yamlUnmarshal(buf, &raw)
+			if err != nil {
+				fmt.Println(string(buf))
+				return nil, fmt.Errorf("yaml parse error %q: %q", fn, err.Error())
 			}
-			parent.mergeWith(&o)
-			o = *parent
-		}
 
+			buf2, err := json.Marshal(raw)
+			if err != nil {
+				return nil, err
+			}
+			err = json.Unmarshal(buf2, &o)
+			if err != nil {
+				return nil, err
+			}
+			if o.Kind != "" {
+				if o.RawMetadata == nil {
+					log.Fatalf("Metadata missing in raw object: %s in %s", o.Kind, fn)
+				}
+				if o.RawMetadata.Name == "" {
+					log.Fatalf("Name missing in raw object: %s in %s", o.Kind, fn)
+				}
+				if o.RawMetadata.Namespace == "" {
+					log.Fatalf("Namespace missing in raw object: %s %q in %s ", o.Kind, o.RawMetadata.Name, fn)
+				}
+				o = SK8config{
+					cfgType: typeKubectl,
+					RawYAML: buf,
+					Kind:    o.Kind,
+				}
+			} else {
+
+				if depth < 5 && len(o.Parents) > 0 {
+					parent := &SK8config{}
+					parents := o.Parents
+					o.Parents = nil
+					log.Debugf("About to load parents: %v", parents)
+
+					for _, pn := range parents {
+						log.Debugf("%sInherit from %s", prefix, pn)
+						gps, err := loadFile(pn, depth+1, cfg)
+						if err != nil {
+							return nil, err
+						}
+						if len(gps) != 1 {
+							return nil, fmt.Errorf("multiple documents in parent %s", pn)
+						}
+						gp := gps[0]
+						if args.Debug && args.Verbose {
+							log.Debugf("Dump of intermediate parent: %s", pn)
+							dump(gp)
+						}
+						parent.mergeWith(gp)
+					}
+					parent.mergeWith(&o)
+					o = *parent
+					o.cfgType = typeSK8
+				}
+			}
+		}
 		result = append(result, &o)
 	}
 	return result, nil
@@ -154,6 +190,9 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 		return cfg
 	}
 
+	override := cfg.Override
+	cfg.Override = nil
+
 	features := make(map[string]bool)
 	for _, f := range cfg.Features {
 		features[f] = true
@@ -161,6 +200,8 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 	for _, f := range copyfrom.Features {
 		features[f] = true
 	}
+	containers := append(cfg.Containers, copyfrom.Containers...)
+	volumes := append(cfg.Volume, copyfrom.Volume...)
 
 	v, _ := json.Marshal(copyfrom)
 	err := json.Unmarshal(v, cfg)
@@ -172,22 +213,31 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 		list = append(list, f)
 	}
 	cfg.Features = list
+	cfg.Containers = containers
+	cfg.Volume = volumes
+
+	if override != nil {
+		return cfg.mergeWith(override)
+	}
+
 	return cfg
 }
 
-func (cfg *SK8config) fixFile() error {
+func (cfg *SK8config) fixFile() {
 
 	if cfg.Image == "" {
 		cfg.Image = cfg.Name
 	}
 
+	log.Debugf("%s: fixFile()", cfg.Name)
 	cwd, _ := os.Getwd()
 	for t, f := range cfg.Templates {
 		if !path.IsAbs(f) {
 			f2 := path.Join(cwd, f)
+			log.Debugf("change template %q -> %q", f, f2)
 			cfg.Templates[t] = f2
+		} else {
+			log.Debugf("template %q is already absolute", f)
 		}
 	}
-
-	return nil
 }
