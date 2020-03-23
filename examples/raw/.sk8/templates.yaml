@@ -1,0 +1,4 @@
+templates:
+  deploy: "../templates/deploy.yaml"
+  service: "../templates/service.yaml"
+  ingress: "../templates/ingress.yaml"

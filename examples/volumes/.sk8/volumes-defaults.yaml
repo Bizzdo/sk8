@@ -1,0 +1,5 @@
+volume:
+- name: default-volume
+  path: /etc/ssl/certs
+  hostdir: /etc/ssl/certs
+  readonly: true

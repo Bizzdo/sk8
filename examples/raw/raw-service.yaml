@@ -1,0 +1,6 @@
+name: raw-service
+---
+kind: ConfigMap
+name: raw-service
+metadata:
+  namespace: a

@@ -1,0 +1,7 @@
+name: service2
+port: 1234
+volume:
+- name: service-volume
+  path: /usr/local/service2
+  hostdir: /usr/local/service2
+  readonly: true

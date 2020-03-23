@@ -1,0 +1,6 @@
+override:
+  port: 6666
+  image: override-{{.Name}}
+  env:
+    values:
+      OLD_PORT: "{{.Port}}"
