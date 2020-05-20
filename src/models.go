@@ -20,6 +20,7 @@ type SK8config struct {
 	Version      string            `json:"version,omitempty"`
 	ImageVersion *string           `json:"imageversion,omitempty"`
 	Registry     Registry          `json:"registry,omitempty"`
+	Args         []string          `json:"args,omitempty"`
 	Port         int               `json:"port,omitempty"`
 	Parents      []string          `json:"parents,omitempty"`
 	Custom       interface{}       `json:"custom,omitempty"`
@@ -44,11 +45,14 @@ type rawMetadata struct {
 }
 
 type Container struct {
-	Name      string `json:"name"`
-	Image     string `json:"image"`
-	Env       EnvMap `json:"env,omitempty"`
-	Liveness  *Probe `json:"liveness,omitempty"`
-	Readyness *Probe `json:"readyness,omitempty"`
+	Name      string         `json:"name"`
+	Image     string         `json:"image"`
+	Ports     map[string]int `json:"ports,omitempty"`
+	Args      []string       `json:"args,omitempty"`
+	Env       EnvMap         `json:"env,omitempty"`
+	Liveness  *Probe         `json:"liveness,omitempty"`
+	Readyness *Probe         `json:"readyness,omitempty"`
+	Volume    []VolumeType   `json:"volume,omitempty"`
 }
 
 // HasFeature is a helper for the templating to test if a feature is used or not
