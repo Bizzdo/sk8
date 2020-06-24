@@ -63,6 +63,9 @@ func cleanupMapValue(v interface{}) interface{} {
 	case bool:
 		return v
 	default:
+		if v == nil {
+			return nil
+		}
 		return fmt.Sprintf("%v", v)
 	}
 }

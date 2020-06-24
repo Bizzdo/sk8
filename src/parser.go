@@ -132,6 +132,7 @@ func loadFile(fn string, depth int, cfg *SK8config) ([]*SK8config, error) {
 			}
 			err = json.Unmarshal(buf2, &o)
 			if err != nil {
+				// fmt.Println(string(buf2))
 				return nil, err
 			}
 			if o.Kind != "" {
@@ -200,8 +201,10 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 	for _, f := range copyfrom.Features {
 		features[f] = true
 	}
-	containers := append(cfg.Containers, copyfrom.Containers...)
-	volumes := append(cfg.Volume, copyfrom.Volume...)
+	containers := getContainers(cfg.Containers, copyfrom.Containers)
+	volumes := getVolumes(cfg.Volume, copyfrom.Volume)
+
+	overrideEnv(cfg, copyfrom)
 
 	v, _ := json.Marshal(copyfrom)
 	err := json.Unmarshal(v, cfg)
@@ -221,6 +224,59 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 	}
 
 	return cfg
+}
+
+func getContainers(cfg, copyfrom []Container) []Container {
+	result := make([]Container, 0, len(cfg)+len(copyfrom))
+	names := make(map[string]Container)
+
+	for _, c := range cfg {
+		names[c.Name] = c
+	}
+	for _, c := range copyfrom {
+		if _, found := names[c.Name]; found {
+			log.Fatalf("Container '%s' already exists, cannot overwrite", c.Name)
+		}
+		names[c.Name] = c
+	}
+	for _, c := range names {
+		result = append(result, c)
+	}
+	return result
+}
+
+func getVolumes(cfg, copyfrom []VolumeType) []VolumeType {
+	result := make([]VolumeType, 0, len(cfg)+len(copyfrom))
+	names := make(map[string]VolumeType)
+
+	for _, c := range cfg {
+		names[c.Name] = c
+	}
+	for _, c := range copyfrom {
+		if _, found := names[c.Name]; found {
+			log.Fatalf("Volume '%s' already exists, cannot overwrite", c.Name)
+		}
+		names[c.Name] = c
+	}
+	for _, c := range names {
+		result = append(result, c)
+	}
+	return result
+}
+
+func overrideEnv(cfg, copyfrom *SK8config) {
+	for k := range copyfrom.Env.Values {
+		delete(cfg.Env.Config, k)
+		delete(cfg.Env.Secret, k)
+	}
+	for k := range copyfrom.Env.Config {
+		delete(cfg.Env.Values, k)
+		delete(cfg.Env.Secret, k)
+	}
+	for k := range copyfrom.Env.Secret {
+		delete(cfg.Env.Values, k)
+		delete(cfg.Env.Config, k)
+	}
 }
 
 func (cfg *SK8config) fixFile() {

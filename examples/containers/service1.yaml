@@ -1,2 +1,7 @@
 name: service1
 port: 1234
+containers:
+- name: container-inside
+  image: container-inside-service1
+# - name: container-extras
+#   image: container-extras-service1
