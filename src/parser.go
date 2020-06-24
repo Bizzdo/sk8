@@ -164,15 +164,17 @@ func loadFile(fn string, depth int, cfg *SK8config) ([]*SK8config, error) {
 						if err != nil {
 							return nil, err
 						}
-						if len(gps) != 1 {
-							return nil, fmt.Errorf("multiple documents in parent %s", pn)
+						if len(gps) > 0 {
+							if len(gps) != 1 {
+								return nil, fmt.Errorf("multiple documents in parent %s", pn)
+							}
+							gp := gps[0]
+							if args.Debug && args.Verbose {
+								log.Debugf("Dump of intermediate parent: %s", pn)
+								dump(gp)
+							}
+							parent.mergeWith(gp)
 						}
-						gp := gps[0]
-						if args.Debug && args.Verbose {
-							log.Debugf("Dump of intermediate parent: %s", pn)
-							dump(gp)
-						}
-						parent.mergeWith(gp)
 					}
 					parent.mergeWith(&o)
 					o = *parent
