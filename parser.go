@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -120,20 +119,20 @@ func loadFile(fn string, depth int, cfg *SK8config) ([]*SK8config, error) {
 			var raw interface{}
 
 			//err = yaml_mapstr.Unmarshal(buf, &raw)
-			err = yamlUnmarshal(buf, &raw)
+			err = yaml_Unmarshal(buf, &raw)
 			if err != nil {
 				fmt.Println(string(buf))
 				return nil, fmt.Errorf("yaml parse error %q: %q", fn, err.Error())
 			}
 
-			buf2, err := json.Marshal(raw)
+			buf2, err := json_Marshal(raw)
 			if err != nil {
-				return nil, err
+				fmt.Println(string(buf))
+				return nil, fmt.Errorf("json_Marshal(raw) error: %v", err)
 			}
-			err = json.Unmarshal(buf2, &o)
+			err = json_Unmarshal(buf2, &o)
 			if err != nil {
-				// fmt.Println(string(buf2))
-				return nil, err
+				return nil, fmt.Errorf("json_Unmarshal(buf2,o) error: %v", err)
 			}
 			if o.Kind != "" {
 				if o.RawMetadata == nil {
@@ -208,8 +207,8 @@ func (cfg *SK8config) mergeWith(copyfrom *SK8config) *SK8config {
 
 	overrideEnv(cfg, copyfrom)
 
-	v, _ := json.Marshal(copyfrom)
-	err := json.Unmarshal(v, cfg)
+	v, _ := json_Marshal(copyfrom)
+	err := json_Unmarshal(v, cfg)
 	if err != nil {
 		panic(err)
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 var log = logging.MustGetLogger("bizzdo")
-var logFormat = logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{message}%{color:reset}`)
+var logFormat = logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{level} %{message}%{color:reset}`)
 var logger *logging.LogBackend
 
 func initLog(verbose bool) {

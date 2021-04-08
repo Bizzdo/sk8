@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"os"
 )
@@ -50,17 +49,21 @@ func validateKubeconfig(validate bool) bool {
 	var kc kubeconfig
 	var o interface{}
 	//yaml_mapstr.Unmarshal(buf, &o)
-	err = yamlUnmarshal(buf, &o)
+	err = yaml_Unmarshal(buf, &o)
 	if err != nil {
 		log.Error("Unable to read kubeconfig: %s", err.Error())
 		return false
 	}
-	buf, err = json.Marshal(o)
+	buf, err = json_Marshal(o)
 	if err != nil {
 		log.Error("Unable to marshal kubeconfig: %s", err.Error())
 		return false
 	}
-	_ = json.Unmarshal(buf, &kc)
+	err = json_Unmarshal(buf, &kc)
+	if err != nil {
+		log.Error("Unable to unmarshal kubeconfig: %s", err.Error())
+		return false
+	}
 
 	var ctx *kubeContext
 	for _, c := range kc.Contexts {

@@ -2,8 +2,8 @@ IMAGE=sk8
 
 build: $(IMAGE)
 
-$(IMAGE): src/*.go Makefile
-	go build -o $(IMAGE) ./src
+$(IMAGE): *.go Makefile
+	go build -o ./$(IMAGE) .
 
 clean:
 	rm ./$(IMAGE)
@@ -12,5 +12,4 @@ fix:
 	go get -v
 
 install: $(IMAGE)
-	mkdir -p ~/bin
-	cp $(IMAGE) ~/bin
+	cp $(IMAGE) $(GOPATH)/bin

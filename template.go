@@ -4,8 +4,6 @@ import (
 	"strings"
 	"text/template"
 
-	"Bizzdo/sk8/chartutil"
-
 	"github.com/Masterminds/sprig"
 )
 
@@ -35,11 +33,11 @@ func FuncMap() template.FuncMap {
 		"getTextfile": getTextfile,
 		"multiline":   multilineYaml,
 
-		"toToml":   chartutil.ToToml,
-		"toYaml":   chartutil.ToYaml,
-		"fromYaml": chartutil.FromYaml,
-		"toJson":   chartutil.ToJson,
-		"fromJson": chartutil.FromJson,
+		"toToml":   ToToml,
+		"toYaml":   ToYaml,
+		"fromYaml": FromYaml,
+		"toJson":   ToJson,
+		"fromJson": FromJson,
 
 		// This is a placeholder for the "include" function, which is
 		// late-bound to a template. By declaring it here, we preserve the

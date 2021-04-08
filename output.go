@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -58,9 +57,14 @@ func SendOutput(cfgs []*SK8config) bool {
 			_, _ = output.Write(o.RawYAML)
 		} else {
 			if !args.Apply {
-				pretty, err := json.MarshalIndent(o, "## ", "  ")
+				pretty, err := json_Marshal(o) //, "## ", "  ")
 				if err == nil {
-					fmt.Fprintf(output, "## %s\n#\n", string(pretty))
+					lines := strings.Split(string(pretty), "\n")
+					for _, line := range lines {
+						fmt.Fprintln(output, "## ", line)
+					}
+					fmt.Fprintln(output, "#")
+					//fmt.Fprintf(output, "## %s\n#\n", string(pretty))
 				}
 			}
 			if args.AllTemplates {
@@ -134,7 +138,7 @@ func (cfg *SK8config) makeYaml(pathname string, div *string, output *io.WriteClo
 }
 
 func dump(o interface{}) {
-	out, err := json.MarshalIndent(&o, "", "  ")
+	out, err := json_Marshal(&o) //, "", "  ")
 	if err != nil {
 		panic(err)
 	}

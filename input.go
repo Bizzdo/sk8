@@ -74,7 +74,7 @@ func LoadInput() []*SK8config {
 
 		docs, err := loadFile(item, 0, nil)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Fatalf("loadFile error: %v", err.Error())
 			return nil
 		}
 
