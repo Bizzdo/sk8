@@ -57,7 +57,7 @@ type ResourceLimit struct {
 
 type Container struct {
 	Name      string         `json:"name"`
-	Image     string         `json:"image"`
+	Image     string         `json:"image,omitempty"`
 	Ports     map[string]int `json:"ports,omitempty"`
 	Args      []string       `json:"args,omitempty"`
 	Env       EnvMap         `json:"env,omitempty"`

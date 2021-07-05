@@ -235,10 +235,17 @@ func getContainers(cfg, copyfrom []Container) []Container {
 		names[c.Name] = c
 	}
 	for _, c := range copyfrom {
-		if _, found := names[c.Name]; found {
-			log.Fatalf("Container '%s' already exists, cannot overwrite", c.Name)
+		if org, found := names[c.Name]; found {
+			v, _ := json_Marshal(c) // merge
+			err := json_Unmarshal(v, &org)
+			if err != nil {
+				log.Fatalf("Container '%s' could not be merged with override: %s", c.Name, err)
+			}
+			log.Infof("Container '%s' already exists, merge attempted", c.Name)
+			names[c.Name] = org
+		} else {
+			names[c.Name] = c
 		}
-		names[c.Name] = c
 	}
 	for _, c := range names {
 		result = append(result, c)
