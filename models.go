@@ -13,31 +13,33 @@ const (
 
 // SK8config s the root of the YAML config for a service
 type SK8config struct {
-	Name         string            `json:"name,omitempty"`
-	Namespace    string            `json:"namespace,omitempty"`
-	Site         string            `json:"site,omitempty"`
-	Image        string            `json:"image,omitempty"`
-	Version      string            `json:"version,omitempty"`
-	ImageVersion *string           `json:"imageversion,omitempty"`
-	Registry     Registry          `json:"registry,omitempty"`
-	Args         []string          `json:"args,omitempty"`
-	Port         int               `json:"port,omitempty"`
-	Parents      []string          `json:"parents,omitempty"`
-	Custom       interface{}       `json:"custom,omitempty"`
-	Notes        map[string]string `json:"notes,omitempty"`
-	Tags         map[string]string `json:"tags,omitempty"`
-	Limits       *Limits           `json:"limits,omitempty"`
-	Extra        Extra             `json:"extra,omitempty"`
-	Env          EnvMap            `json:"env,omitempty"`
-	Volume       []VolumeType      `json:"volume,omitempty"`
-	Templates    map[string]string `json:"templates,omitempty"`
-	Features     []string          `json:"features,omitempty"`
-	Override     *SK8config        `json:"override,omitempty"`
-	cfgType      configType
-	Kind         string       `json:"kind,omitempty"`
-	RawMetadata  *rawMetadata `json:"metadata,omitempty"`
-	RawYAML      []byte       `json:"rawYaml,omitempty"`
-	Containers   []Container  `json:"containers,omitempty"`
+	Name          string            `json:"name,omitempty"`
+	Namespace     string            `json:"namespace,omitempty"`
+	Site          string            `json:"site,omitempty"`
+	Image         string            `json:"image,omitempty"`
+	Version       string            `json:"version,omitempty"`
+	ImageVersion  *string           `json:"imageversion,omitempty"`
+	Registry      Registry          `json:"registry,omitempty"`
+	Args          []string          `json:"args,omitempty"`
+	Port          int               `json:"port,omitempty"`
+	Parents       []string          `json:"parents,omitempty"`
+	Custom        interface{}       `json:"custom,omitempty"`
+	Notes         map[string]string `json:"notes,omitempty"`
+	Tags          map[string]string `json:"tags,omitempty"`
+	Limits        *Limits           `json:"limits,omitempty"`
+	Extra         Extra             `json:"extra,omitempty"`
+	Env           EnvMap            `json:"env,omitempty"`
+	Volume        []VolumeType      `json:"volume,omitempty"`
+	Templates     map[string]string `json:"templates,omitempty"`
+	Features      []string          `json:"features,omitempty"`
+	Override      *SK8config        `json:"override,omitempty"`
+	NodeSelectors map[string]string `json:"nodeSelectors,omitempty"`
+	Tolerations   []Toleration      `json:"tolerations,omitempty"`
+	cfgType       configType
+	Kind          string       `json:"kind,omitempty"`
+	RawMetadata   *rawMetadata `json:"metadata,omitempty"`
+	RawYAML       []byte       `json:"rawYaml,omitempty"`
+	Containers    []Container  `json:"containers,omitempty"`
 }
 
 type rawMetadata struct {
@@ -65,6 +67,13 @@ type Container struct {
 	Readyness *Probe         `json:"readyness,omitempty"`
 	Volume    []VolumeType   `json:"volume,omitempty"`
 	Limits    *Limits        `json:"limits,omitempty"`
+}
+
+type Toleration struct {
+	Key      string `json:"key,omitempty"`
+	Operator string `json:"operator"`
+	Value    string `json:"value,omitempty"`
+	Effect   string `json:"effect,omitempty"`
 }
 
 // HasFeature is a helper for the templating to test if a feature is used or not
