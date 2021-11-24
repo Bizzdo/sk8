@@ -11,3 +11,5 @@
 !.gitignore
 !.gitattributes
 !vendor
+!go.mod
+!go.sum
