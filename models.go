@@ -26,6 +26,7 @@ type SK8config struct {
 	Custom        interface{}       `json:"custom,omitempty"`
 	Notes         map[string]string `json:"notes,omitempty"`
 	Tags          map[string]string `json:"tags,omitempty"`
+	Annotations   map[string]string `json:"annotations,omitempty"`
 	Limits        *Limits           `json:"limits,omitempty"`
 	Extra         Extra             `json:"extra,omitempty"`
 	Env           EnvMap            `json:"env,omitempty"`

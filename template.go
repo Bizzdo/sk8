@@ -32,6 +32,7 @@ func FuncMap() template.FuncMap {
 		"getFile":     getFile,
 		"getTextfile": getTextfile,
 		"multiline":   multilineYaml,
+		"contains":    contains,
 
 		"toToml":   ToToml,
 		"toYaml":   ToYaml,
@@ -52,6 +53,10 @@ func FuncMap() template.FuncMap {
 	}
 
 	return f
+}
+
+func contains(s, substr string) bool {
+	return strings.Contains(s, substr)
 }
 
 func indent2(spaces int, v string) string {
