@@ -15,12 +15,12 @@ import (
 //
 // Known late-bound functions:
 //
-//	- "include": This is late-bound in Engine.Render(). The version
-//	   included in the FuncMap is a placeholder.
-//      - "required": This is late-bound in Engine.Render(). The version
-//	   included in the FuncMap is a placeholder.
-//      - "tpl": This is late-bound in Engine.Render(). The version
-//	   included in the FuncMap is a placeholder.
+//   - "include": This is late-bound in Engine.Render(). The version
+//     included in the FuncMap is a placeholder.
+//   - "required": This is late-bound in Engine.Render(). The version
+//     included in the FuncMap is a placeholder.
+//   - "tpl": This is late-bound in Engine.Render(). The version
+//     included in the FuncMap is a placeholder.
 func FuncMap() template.FuncMap {
 	f := sprig.TxtFuncMap()
 	delete(f, "env")
@@ -33,6 +33,9 @@ func FuncMap() template.FuncMap {
 		"getTextfile": getTextfile,
 		"multiline":   multilineYaml,
 		"contains":    contains,
+		"hasPrefix":   strings.HasPrefix,
+		"hasSuffix":   strings.HasSuffix,
+		"replace":     replace,
 
 		"toToml":   ToToml,
 		"toYaml":   ToYaml,
@@ -66,4 +69,8 @@ func indent2(spaces int, v string) string {
 
 func multilineYaml(v string) string {
 	return "|\n" + v
+}
+
+func replace(from string, to string, occurances int, str string) string {
+	return strings.Replace(str, from, to, occurances)
 }
