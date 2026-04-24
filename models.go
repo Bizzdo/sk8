@@ -129,14 +129,15 @@ type Probe struct {
 
 // VolumeType is how to get a "file" in the pod from various sources
 type VolumeType struct {
-	Name     string        `json:"name,omitempty"`
-	Path     string        `json:"path,omitempty"`
-	HostDir  string        `json:"hostdir,omitempty"`
-	HostFile string        `json:"hostfile,omitempty"`
-	ReadOnly bool          `json:"readonly,omitempty"`
-	EmptyDir bool          `json:"empty,omitempty"`
-	Config   *VolumeSource `json:"config,omitempty"`
-	Secret   *VolumeSource `json:"secret,omitempty"`
+	Name     string                 `json:"name,omitempty"`
+	Path     string                 `json:"path,omitempty"`
+	HostDir  string                 `json:"hostdir,omitempty"`
+	HostFile string                 `json:"hostfile,omitempty"`
+	ReadOnly bool                   `json:"readonly,omitempty"`
+	EmptyDir bool                   `json:"empty,omitempty"`
+	Config   *VolumeSource          `json:"config,omitempty"`
+	Secret   *VolumeSource          `json:"secret,omitempty"`
+	PVC      *PersistentVolumeClaim `json:"pvc,omitempty"`
 }
 
 // VolumeSource is what files to actually map from a source-definition
@@ -145,7 +146,15 @@ type VolumeSource struct {
 	Items map[string]string `json:"items,omitempty"`
 }
 
-// type VolumeConfigItem struct {
-// 	Key  string `json:"key,omitempty"`
-// 	Path string `json:"path,omitempty"`
-// }
+type PersistentVolumeClaim struct {
+	Name      string            `json:"name,omitempty"`
+	ClaimName string            `json:"claimname,omitempty"`
+	PV        *PersistentVolume `json:"pv,omitempty"`
+}
+
+type PersistentVolume struct {
+	StorageClass string   `json:"storageclass,omitempty"`
+	AccessModes  []string `json:"accessmodes,omitempty"`
+	VolumeMode   *string  `json:"volumemode,omitempty"`
+	Size         string   `json:"size,omitempty"`
+}
